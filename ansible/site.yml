@@ -1,0 +1,10 @@
+---
+- name: Performing OCR server rolling update
+  hosts: "{{ env }}_{{ server }}"
+  serial: 1 # update 1 server at a time
+  roles:
+    - "{{ server }}"
+  tasks:
+    # Pause for 1 minutes ,then proceed to was02
+    - pause:
+        minutes: 1

@@ -1,0 +1,50 @@
+---
+- name: renaming {{ hc }} to  {{ hc_temp }} (1/11)
+  ansible.windows.win_shell: "cmd.exe /c rename {{ ocr_dir }}\\ocr\\{{ hc }} {{ hc_temp }}"
+
+# Pause for 5 minutes to build app cache.
+- pause:
+    minutes: 5
+
+- name: check no incoming log at the moment (2/11)
+  ansible.windows.win_shell: "Get-ChildItem {{ log_dir }} | Where{$_.LastWriteTime -gt (Get-Date).AddMinutes(-5)}"
+  register: last_modifled        
+
+- debug: msg="{{ last_modifled }}"
+
+- name: disable OCR service (3/11)
+  ansible.windows.win_shell: "Stop-Service {{ service_name }}"
+
+- name: move old IDCardRecog to backup directory (4/11)
+  ansible.windows.win_shell: "Move-Item -Path {{ ocr_dir }}\\IDCardRecog -Destination '{{ ocr_dir }}\\OCR Solution\\IDCardRecog_backup'"
+
+- name: rename IDCardRecog backup file with timestamp (5/11)
+  ansible.windows.win_shell: "Rename-Item -Path '{{ ocr_dir }}\\OCR Solution\\IDCardRecog_backup' -NewName IDCardRecog_{{ ansible_date_time.epoch }}"
+
+- name: Copy updated IDCardRecog.zip to remote server (6/11)
+  ansible.windows.win_copy:
+    src: /ansible/roles/OCR/files/IDCardRecog.zip
+    dest: "{{ ocr_dir }}"
+
+- name: decompress IDCardRecog.zip (7/11)
+  community.windows.win_unzip:
+    src: "{{ ocr_dir }}\\IDCardRecog.zip"
+    dest: "{{ ocr_dir }}\\IDCardRecog"
+    delete_archive: yes
+
+- name: enable OCR service (8/11)
+  ansible.windows.win_shell: "Start-Service {{ service_name }}"
+
+- name: Pause for 5 seconds for the server to spin up (9/11)
+  pause:
+    seconds: 5
+
+- name: check test.jsp (10/11)
+  ansible.windows.win_shell: "curl -H @{'cache-control'= 'no-cache'} {{ service_test_url }}"
+  register: result        
+  failed_when: "'\"ok\":true,' is not in result.stdout"                             
+
+- debug: msg="{{ result.stdout }}"
+  
+- name: renaming {{ hc_temp }} back to {{ hc }} (11/11)
+  ansible.windows.win_shell: "cmd.exe /c rename {{ ocr_dir }}\\ocr\\{{ hc_temp }} {{ hc }}"

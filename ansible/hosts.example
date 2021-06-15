@@ -1,0 +1,21 @@
+[dev_ocr]
+<host_ip> ansible_user=<username> ansible_password=<password>
+<host_ip2> ansible_user=<username2> ansible_password=<password2>
+
+[uat_ocr]
+<host_ip> ansible_user=<username> ansible_password=<password>
+
+[prd_ocr]
+<host_ip> ansible_user=<username> ansible_password=<password>
+
+[dev_ocr:vars]
+ansible_connection=winrm
+ansible_winrm_server_cert_validation=ignore
+ansible_port= 5986
+ansible_python_interpreter= /usr/bin/python
+
+[uat_ocr:vars]
+foo=bar
+
+[prd_ocr:vars]
+foo=bar

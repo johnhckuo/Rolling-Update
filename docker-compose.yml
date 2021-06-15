@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+    control:
+        image: johnhckuo/ansible-playbook:latest
+        volumes:
+        - ./ansible:/ansible/
+        tty: true
+
+    # server1:
+    #     image: nginx
+    #     ports:
+    #     - "8887:80"
+    #     environment:
+    #     - NGINX_HOST=foobar1.com
+    #     - NGINX_PORT=80
+    # server2:
+    #     image: nginx
+    #     ports:
+    #     - "8888:80"
+    #     environment:
+    #     - NGINX_HOST=foobar2.com
+    #     - NGINX_PORT=80
+    # server3:
+    #     image: nginx
+    #     ports:
+    #     - "8889:80"
+    #     environment:
+    #     - NGINX_HOST=foobar3.com
+    #     - NGINX_PORT=80

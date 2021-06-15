@@ -1,0 +1,7 @@
+---
+ocr_dir: C:\inetpub\wwwroot
+log_dir: c:\logs\ocr
+service_test_url: localhost
+hc: hc.html
+hc_temp: hc_temp.html
+service_name: W3SVC

@@ -1,0 +1,31 @@
+---
+- name: Copy the NGINX repository definition
+  copy:
+    src: 1.txt
+    dest: /ansible/
+    mode: 0755
+
+- name: Copying standalone.xml configuration file
+  template:
+    src: standalone.xml
+    dest: /usr/share/jboss-as/standalone/configuration/
+  notify: restart mariadb
+
+- name: Trigger Build
+  hosts: jenkins
+  tasks:
+    - name: "Wait for Jenkins to Trigger Build"
+      uri:
+        url: "http://localhost:8080/job/Test/build?token=67c2b2b3"
+        status_code: 201
+      register: result
+      until: result.status == 201
+      retries: 60
+      delay: 1
+
+- name: blippy
+  command: echo '{{ x }}'
+
+# - name: Disable default pool
+#   command: mv /etc/php-fpm.d/www.conf /etc/php-fpm.d/www.disabled creates=/etc/php-fpm.d/www.disabled
+#   notify: restart php-fpm
